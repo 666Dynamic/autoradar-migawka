@@ -1,121 +1,47 @@
-<!doctype html>
-<html lang="pl">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AutoRadar — migawka</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.6.1/dist/css/tabler.min.css">
-</head>
-<body>
-<div class="page">
-  <div class="container-xl py-4">
-    <div class="page-header mb-4">
-      <div class="row align-items-center">
-        <div class="col">
-          <h2 class="page-title">AutoRadar — migawka</h2>
-          <div class="text-secondary mt-1" id="stamp"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row row-cards mb-4">
-      <div class="col-sm-6 col-lg-3">
-        <div class="card"><div class="card-body">
-          <div class="subheader">Auta z wyliczoną różnicą</div>
-          <div class="h1 mb-0" id="kpi-total"></div>
-        </div></div>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <div class="card"><div class="card-body">
-          <div class="subheader">Kwalifikują się</div>
-          <div class="h1 mb-0 text-success" id="kpi-qual"></div>
-        </div></div>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <div class="card"><div class="card-body">
-          <div class="subheader">Najwyższa różnica</div>
-          <div class="h1 mb-0" id="kpi-max"></div>
-        </div></div>
-      </div>
-      <div class="col-sm-6 col-lg-3">
-        <div class="card"><div class="card-body">
-          <div class="subheader">Próg</div>
-          <div class="h3 mb-0">3500 EUR / 4500 EUR</div>
-          <div class="text-secondary small">poniżej / od 10 000 EUR ceny Auto1</div>
-        </div></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="card-title">Lista aut</div>
-        <div class="card-actions">
-          <label class="form-check form-switch mb-0">
-            <input class="form-check-input" type="checkbox" id="only-qual">
-            <span class="form-check-label">tylko kwalifikujące się</span>
-          </label>
-        </div>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-vcenter card-table table-hover">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Auto</th>
-              <th class="text-end">Auto1 EUR</th>
-              <th class="text-end">Otomoto EUR</th>
-              <th class="text-end" style="cursor:pointer" id="sort-diff">Różnica EUR ↕</th>
-              <th class="text-end">Próg EUR</th>
-              <th class="text-end">Ofert</th>
-              <th>Wynik</th>
-            </tr>
-          </thead>
-          <tbody id="rows"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="text-secondary small mt-3">
-      Porównanie: średnia z do 5 najtańszych ofert Otomoto minus cena Auto1. Kurs NBP 4,4056 PLN/EUR.
-    </div>
-  </div>
-</div>
-
-<script>
-const DATA = [{"id": "FY80200", "title": "Skoda Superb 2.0 TSI Style", "a": 12900.0, "o": 18136.0, "d": 5236.0, "t": 4500, "n": 4, "ok": true}, {"id": "XC94954", "title": "MINI Countryman Cooper S ALL4", "a": 13116.0, "o": 12906.0, "d": -210.0, "t": 4500, "n": 5, "ok": false}, {"id": "LD13984", "title": "Abarth 595 1.4 Turbo", "a": 13365.0, "o": 17478.0, "d": 4113.0, "t": 4500, "n": 1, "ok": false}, {"id": "NT48139", "title": "BMW X1 xDrive 18d Sport Line", "a": 8953.0, "o": 7690.0, "d": -1263.0, "t": 3500, "n": 5, "ok": false}, {"id": "VU27617", "title": "Audi A3 Sportback 2.0 TDI quattro S line Sportpaket", "a": 8596.0, "o": 10164.0, "d": 1568.0, "t": 3500, "n": 5, "ok": false}, {"id": "BL67687", "title": "Ford Kuga 2.0 TDCi ST-Line 4x4", "a": 13512.0, "o": 10999.0, "d": -2513.0, "t": 4500, "n": 5, "ok": false}, {"id": "WP90244", "title": "Kia Sportage 2.0 CRDi Spirit 4WD", "a": 8111.0, "o": 8957.0, "d": 846.0, "t": 3500, "n": 5, "ok": false}, {"id": "HS78273", "title": "Audi A3 Sportback 2.0 TDI quattro Sport", "a": 8673.0, "o": 10314.0, "d": 1641.0, "t": 3500, "n": 5, "ok": false}, {"id": "EU20285", "title": "Seat Leon 1.4 TSI ACT FR", "a": 7836.0, "o": 10641.0, "d": 2805.0, "t": 3500, "n": 5, "ok": false}, {"id": "VY21912", "title": "Ford S-Max 2.0 TDCi EcoBlue Titanium", "a": 14431.0, "o": 15099.0, "d": 668.0, "t": 4500, "n": 5, "ok": false}, {"id": "DK92277", "title": "Audi A3 Sportback 1.4 TFSI ACT Sport", "a": 8294.0, "o": 8121.0, "d": -173.0, "t": 3500, "n": 5, "ok": false}, {"id": "HT51450", "title": "Audi A6 3.0 V6 TDI clean diesel quattro", "a": 7113.0, "o": 8707.0, "d": 1594.0, "t": 3500, "n": 5, "ok": false}, {"id": "XP18180", "title": "Audi A4 40 TDI quattro Sport", "a": 14005.0, "o": 15312.0, "d": 1307.0, "t": 4500, "n": 5, "ok": false}, {"id": "RP27193", "title": "Opel Astra 1.6 CDTI Biturbo 120 Jahre Start/Stop", "a": 10486.0, "o": 8149.0, "d": -2337.0, "t": 4500, "n": 1, "ok": false}, {"id": "EY88637", "title": "Mercedes-Benz CLA-Klasse CLA 180 Shooting Brake Urban", "a": 7900.0, "o": 10682.0, "d": 2782.0, "t": 3500, "n": 5, "ok": false}, {"id": "CK84027", "title": "Volkswagen Golf VIII 1.5 eTSI Life", "a": 14892.0, "o": 14468.0, "d": -424.0, "t": 4500, "n": 5, "ok": false}, {"id": "AE47601", "title": "Skoda Octavia 2.0 TDI RS", "a": 8240.0, "o": 8430.0, "d": 190.0, "t": 3500, "n": 5, "ok": false}, {"id": "TV46343", "title": "Volkswagen Touran 2.0 TDI Highline BlueMotion Tech", "a": 11886.0, "o": 11553.0, "d": -333.0, "t": 4500, "n": 3, "ok": false}, {"id": "VB07368", "title": "Abarth 595 1.4 Turbo Turismo", "a": 10333.0, "o": 16105.0, "d": 5772.0, "t": 4500, "n": 2, "ok": true}, {"id": "RR48044", "title": "Mazda 6 2.2 Turbodiesel Exclusive-Line", "a": 9316.0, "o": 9094.0, "d": -222.0, "t": 3500, "n": 3, "ok": false}, {"id": "VJ05677", "title": "BMW 1er 118i M Sport", "a": 6088.0, "o": 7804.0, "d": 1716.0, "t": 3500, "n": 5, "ok": false}, {"id": "NF75868", "title": "Ford Focus 2.0 TDCi Titanium", "a": 3877.0, "o": 5597.0, "d": 1720.0, "t": 3500, "n": 5, "ok": false}, {"id": "KH78867", "title": "Fiat Talento 1.6 TwinTurbo Diesel Ecojet L2H1 DoKa 1,2t SX", "a": 7596.0, "o": 9706.0, "d": 2110.0, "t": 3500, "n": 5, "ok": false}, {"id": "FJ28191", "title": "Mercedes-Benz B-Klasse B 180 Progressive", "a": 14273.0, "o": 14250.0, "d": -23.0, "t": 4500, "n": 5, "ok": false}, {"id": "PW58163", "title": "Renault Trafic 1.6 dCi Energy L1H1 2,7t Expression", "a": 10956.0, "o": 8135.0, "d": -2821.0, "t": 4500, "n": 5, "ok": false}, {"id": "TW27616", "title": "Citroen C4 Grand Picasso 1.2 e-THP Shine", "a": 8300.0, "o": 9965.0, "d": 1665.0, "t": 3500, "n": 2, "ok": false}, {"id": "SZ29937", "title": "Audi A4 2.0 TDI quattro Attraction", "a": 5435.0, "o": 7958.0, "d": 2523.0, "t": 3500, "n": 5, "ok": false}, {"id": "SY48442", "title": "Mercedes-Benz CLA-Klasse CLA 180 Urban", "a": 7159.0, "o": 9402.0, "d": 2243.0, "t": 3500, "n": 5, "ok": false}, {"id": "RV63456", "title": "Volkswagen Golf VII 2.0 TDI 4Motion BlueMotion Tech", "a": 3983.0, "o": 8585.0, "d": 4602.0, "t": 3500, "n": 5, "ok": true}, {"id": "DF02043", "title": "Seat Leon 1.8 TSI FR", "a": 6453.0, "o": 8503.0, "d": 2050.0, "t": 3500, "n": 5, "ok": false}, {"id": "RF01349", "title": "Seat Ateca 1.4 TSI ACT Xcellence", "a": 10381.0, "o": 14629.0, "d": 4248.0, "t": 4500, "n": 4, "ok": false}];
-const STAMP = "2026-10-29 10:00 UTC";
-
-const fmt = n => Math.round(n).toLocaleString('pl-PL');
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-let sortDesc = true;
-let onlyQual = false;
-
-function render() {
-  const rows = DATA.filter(r => !onlyQual || r.ok)
-    .sort((a, b) => sortDesc ? b.d - a.d : a.d - b.d);
-  document.getElementById('rows').innerHTML = rows.map(r => `
-    <tr>
-      <td class="text-secondary">${esc(r.id)}</td>
-      <td>${esc(r.title)}</td>
-      <td class="text-end">${fmt(r.a)}</td>
-      <td class="text-end">${fmt(r.o)}</td>
-      <td class="text-end fw-bold ${r.d >= 0 ? 'text-success' : 'text-danger'}">${fmt(r.d)}</td>
-      <td class="text-end">${r.t}</td>
-      <td class="text-end">${r.n}</td>
-      <td>${r.ok ? '<span class="badge bg-success-lt text-success">kwalifikuje</span>'
-                 : '<span class="badge bg-secondary-lt">nie</span>'}</td>
-    </tr>`).join('');
-}
-
-document.getElementById('stamp').textContent = 'Aktualizacja: ' + STAMP;
-document.getElementById('kpi-total').textContent = DATA.length;
-document.getElementById('kpi-qual').textContent = DATA.filter(r => r.ok).length;
-document.getElementById('kpi-max').textContent = fmt(Math.max(...DATA.map(r => r.d))) + ' EUR';
-document.getElementById('only-qual').addEventListener('change', e => { onlyQual = e.target.checked; render(); });
-document.getElementById('sort-diff').addEventListener('click', () => { sortDesc = !sortDesc; render(); });
-render();
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.6.1/dist/js/tabler.min.js"></script>
-</body>
-</html>
+<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AutoRadar — migawka</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;padding:24px;background:#fafafa;color:#111}
+h1{font-size:22px;margin:0 0 4px} p{margin:4px 0;color:#555}
+table{border-collapse:collapse;width:100%;margin-top:16px;font-size:14px;background:#fff}
+th,td{padding:8px 10px;border-bottom:1px solid #e5e5e5;text-align:left} th{background:#f0f0f0}
+td.n{text-align:right;font-variant-numeric:tabular-nums} tr.ok td{background:#e9f7ec;font-weight:600}
+.wrap{overflow-x:auto}
+</style></head><body>
+<h1>AutoRadar — migawka</h1>
+<p>Aktualizacja: 2026-10-29 10:06 UTC. Porównanie Auto1 z Otomoto (średnia 5 najtańszych). Kurs NBP 4,4056 PLN/EUR.</p>
+<p>Próg: 3500 EUR poniżej 10 000 EUR ceny Auto1, 4500 EUR od 10 000 EUR. Zielone wiersze = różnica powyżej progu.</p>
+<div class="wrap"><table><thead><tr><th>ID</th><th>Auto</th><th>Auto1 EUR</th><th>Otomoto EUR</th><th>Różnica EUR</th><th>Próg EUR</th><th>Ofert</th><th>Kwalifikuje</th></tr></thead><tbody>
+<tr class="ok"><td>VB07368</td><td>Abarth 595 1.4 Turbo Turismo</td><td class='n'>10333</td><td class='n'>16105</td><td class='n'>5772</td><td class='n'>4500</td><td class='n'>2</td><td>TAK</td></tr>
+<tr class="ok"><td>FY80200</td><td>Skoda Superb 2.0 TSI Style</td><td class='n'>12900</td><td class='n'>18136</td><td class='n'>5236</td><td class='n'>4500</td><td class='n'>4</td><td>TAK</td></tr>
+<tr class="ok"><td>RV63456</td><td>Volkswagen Golf VII 2.0 TDI 4Motion BlueMotion Tech</td><td class='n'>3983</td><td class='n'>8585</td><td class='n'>4602</td><td class='n'>3500</td><td class='n'>5</td><td>TAK</td></tr>
+<tr><td>RF01349</td><td>Seat Ateca 1.4 TSI ACT Xcellence</td><td class='n'>10381</td><td class='n'>14629</td><td class='n'>4248</td><td class='n'>4500</td><td class='n'>4</td><td>nie</td></tr>
+<tr><td>LD13984</td><td>Abarth 595 1.4 Turbo</td><td class='n'>13365</td><td class='n'>17478</td><td class='n'>4113</td><td class='n'>4500</td><td class='n'>1</td><td>nie</td></tr>
+<tr><td>EU20285</td><td>Seat Leon 1.4 TSI ACT FR</td><td class='n'>7836</td><td class='n'>10641</td><td class='n'>2805</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>EY88637</td><td>Mercedes-Benz CLA-Klasse CLA 180 Shooting Brake Urban</td><td class='n'>7900</td><td class='n'>10682</td><td class='n'>2782</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>SZ29937</td><td>Audi A4 2.0 TDI quattro Attraction</td><td class='n'>5435</td><td class='n'>7958</td><td class='n'>2523</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>SY48442</td><td>Mercedes-Benz CLA-Klasse CLA 180 Urban</td><td class='n'>7159</td><td class='n'>9402</td><td class='n'>2243</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>KH78867</td><td>Fiat Talento 1.6 TwinTurbo Diesel Ecojet L2H1 DoKa 1,2t SX</td><td class='n'>7596</td><td class='n'>9706</td><td class='n'>2110</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>DF02043</td><td>Seat Leon 1.8 TSI FR</td><td class='n'>6453</td><td class='n'>8503</td><td class='n'>2050</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>NF75868</td><td>Ford Focus 2.0 TDCi Titanium</td><td class='n'>3877</td><td class='n'>5597</td><td class='n'>1720</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>VJ05677</td><td>BMW 1er 118i M Sport</td><td class='n'>6088</td><td class='n'>7804</td><td class='n'>1716</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>TW27616</td><td>Citroen C4 Grand Picasso 1.2 e-THP Shine</td><td class='n'>8300</td><td class='n'>9965</td><td class='n'>1665</td><td class='n'>3500</td><td class='n'>2</td><td>nie</td></tr>
+<tr><td>HS78273</td><td>Audi A3 Sportback 2.0 TDI quattro Sport</td><td class='n'>8673</td><td class='n'>10314</td><td class='n'>1641</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>HT51450</td><td>Audi A6 3.0 V6 TDI clean diesel quattro</td><td class='n'>7113</td><td class='n'>8707</td><td class='n'>1594</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>VU27617</td><td>Audi A3 Sportback 2.0 TDI quattro S line Sportpaket</td><td class='n'>8596</td><td class='n'>10164</td><td class='n'>1568</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>XP18180</td><td>Audi A4 40 TDI quattro Sport</td><td class='n'>14005</td><td class='n'>15312</td><td class='n'>1307</td><td class='n'>4500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>WP90244</td><td>Kia Sportage 2.0 CRDi Spirit 4WD</td><td class='n'>8111</td><td class='n'>8957</td><td class='n'>846</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>VY21912</td><td>Ford S-Max 2.0 TDCi EcoBlue Titanium</td><td class='n'>14431</td><td class='n'>15099</td><td class='n'>668</td><td class='n'>4500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>AE47601</td><td>Skoda Octavia 2.0 TDI RS</td><td class='n'>8240</td><td class='n'>8430</td><td class='n'>190</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>FJ28191</td><td>Mercedes-Benz B-Klasse B 180 Progressive</td><td class='n'>14273</td><td class='n'>14250</td><td class='n'>-23</td><td class='n'>4500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>DK92277</td><td>Audi A3 Sportback 1.4 TFSI ACT Sport</td><td class='n'>8294</td><td class='n'>8121</td><td class='n'>-173</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>XC94954</td><td>MINI Countryman Cooper S ALL4</td><td class='n'>13116</td><td class='n'>12906</td><td class='n'>-210</td><td class='n'>4500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>RR48044</td><td>Mazda 6 2.2 Turbodiesel Exclusive-Line</td><td class='n'>9316</td><td class='n'>9094</td><td class='n'>-222</td><td class='n'>3500</td><td class='n'>3</td><td>nie</td></tr>
+<tr><td>TV46343</td><td>Volkswagen Touran 2.0 TDI Highline BlueMotion Tech</td><td class='n'>11886</td><td class='n'>11553</td><td class='n'>-333</td><td class='n'>4500</td><td class='n'>3</td><td>nie</td></tr>
+<tr><td>CK84027</td><td>Volkswagen Golf VIII 1.5 eTSI Life</td><td class='n'>14892</td><td class='n'>14468</td><td class='n'>-424</td><td class='n'>4500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>NT48139</td><td>BMW X1 xDrive 18d Sport Line</td><td class='n'>8953</td><td class='n'>7690</td><td class='n'>-1263</td><td class='n'>3500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>RP27193</td><td>Opel Astra 1.6 CDTI Biturbo 120 Jahre Start/Stop</td><td class='n'>10486</td><td class='n'>8149</td><td class='n'>-2337</td><td class='n'>4500</td><td class='n'>1</td><td>nie</td></tr>
+<tr><td>BL67687</td><td>Ford Kuga 2.0 TDCi ST-Line 4x4</td><td class='n'>13512</td><td class='n'>10999</td><td class='n'>-2513</td><td class='n'>4500</td><td class='n'>5</td><td>nie</td></tr>
+<tr><td>PW58163</td><td>Renault Trafic 1.6 dCi Energy L1H1 2,7t Expression</td><td class='n'>10956</td><td class='n'>8135</td><td class='n'>-2821</td><td class='n'>4500</td><td class='n'>5</td><td>nie</td></tr>
+</tbody></table></div>
+</body></html>
